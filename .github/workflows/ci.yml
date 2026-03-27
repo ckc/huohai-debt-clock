@@ -9,18 +9,31 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    strategy:
+      matrix:
+        node-version: [18, 20, 24]
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js 18
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-      - name: Install dependencies
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install frontend deps
         run: npm ci
         working-directory: frontend
+
       - name: Run npm audit
         run: npm audit --audit-level=moderate
         working-directory: frontend
+
       - name: Build frontend
         run: npm run build
         working-directory: frontend
+
